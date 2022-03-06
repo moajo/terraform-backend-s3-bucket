@@ -2,30 +2,39 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "~> 4.0"
     }
   }
 }
 
 resource "aws_s3_bucket" "main" {
   bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_acl" "main" {
+  bucket = aws_s3_bucket.main.id
   acl    = "private"
+}
 
-  // NOTE: It is recommended to enable versioning for the terraform backend bucket.
-  // see: https://www.terraform.io/docs/language/settings/backends/s3.html
-  versioning {
-    enabled = true
+// NOTE: It is recommended to enable versioning for the terraform backend bucket.
+// see: https://www.terraform.io/docs/language/settings/backends/s3.html
+resource "aws_s3_bucket_versioning" "main" {
+  bucket = aws_s3_bucket.main.id
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  // NOTE: Use SSE-KMS so that you can control permissions in detail.
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.main.key_id
-        sse_algorithm     = "aws:kms"
-      }
-      bucket_key_enabled = true
+// NOTE: Use SSE-KMS so that you can control permissions in detail.
+resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
+  bucket = aws_s3_bucket.main.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.main.key_id
+      sse_algorithm     = "aws:kms"
     }
+    bucket_key_enabled = true
   }
 }
 
