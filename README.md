@@ -9,7 +9,7 @@ An s3 bucket to use as a terraform backend.
 
 ```tf
 module "terraform_backend" {
-  source      = "github.com/moajo/terraform-backend-s3-bucket.git?ref=v1.0.0"
+  source      = "github.com/moajo/terraform-backend-s3-bucket.git?ref=v2.0.0"
   bucket_name = "projecthogehoge-terraform-backend" # Must be a globally unique bucket name
 }
 ```
